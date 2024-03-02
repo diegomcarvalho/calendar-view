@@ -22,13 +22,13 @@ weekday_dict = {
     "сб": 5,
     "вс": 6,
     "нд": 6,
-    "Seg": 0,
-    "Ter": 1,
-    "Qua": 2,
-    "Qui": 3,
-    "Sex": 4,
-    "Sab": 5,
-    "Dom": 6,
+    "seg": 0,
+    "ter": 1,
+    "qua": 2,
+    "qui": 3,
+    "sex": 4,
+    "sab": 5,
+    "dom": 6,
 }
 time_regex = re.compile(r"^([0-9]{1,2})(:([0-9]{2}))?$")
 
