@@ -7,23 +7,30 @@ from calendar_view.core.utils import StringUtils
 MAX_DAYS_RANGE_ALLOWED = 15
 ZERO_TIME = time(0, 0)
 weekday_dict = {
-    'mo': 0,
-    'tu': 1,
-    'we': 2,
-    'th': 3,
-    'fr': 4,
-    'sa': 5,
-    'su': 6,
-    'пн': 0,
-    'вт': 1,
-    'ср': 2,
-    'чт': 3,
-    'пт': 4,
-    'сб': 5,
-    'вс': 6,
-    'нд': 6,
+    "mo": 0,
+    "tu": 1,
+    "we": 2,
+    "th": 3,
+    "fr": 4,
+    "sa": 5,
+    "su": 6,
+    "пн": 0,
+    "вт": 1,
+    "ср": 2,
+    "чт": 3,
+    "пт": 4,
+    "сб": 5,
+    "вс": 6,
+    "нд": 6,
+    "Seg": 0,
+    "Ter": 1,
+    "Qua": 2,
+    "Qui": 3,
+    "Sex": 4,
+    "Sab": 5,
+    "Dom": 6,
 }
-time_regex = re.compile(r'^([0-9]{1,2})(:([0-9]{2}))?$')
+time_regex = re.compile(r"^([0-9]{1,2})(:([0-9]{2}))?$")
 
 
 def parse_time(value: str) -> Optional[time]:
@@ -60,15 +67,19 @@ def parse_time_interval(interval: str) -> Optional[Tuple[time, time]]:
     interval = interval.strip()
     if interval is None:
         return None
-    if '-' not in interval:
-        raise ValueError('Wrong interval format: {}. Use: \'hh:mm - hh:mm\''.format(interval))
+    if "-" not in interval:
+        raise ValueError(
+            "Wrong interval format: {}. Use: 'hh:mm - hh:mm'".format(interval)
+        )
 
-    start_value, end_value = interval.split('-')
+    start_value, end_value = interval.split("-")
     start = parse_time(start_value.strip())
     end = parse_time(end_value.strip())
 
     if end <= start and end != ZERO_TIME:
-        raise ValueError('Start time has to be before end time: {} - {}'.format(start, end))
+        raise ValueError(
+            "Start time has to be before end time: {} - {}".format(start, end)
+        )
 
     return start, end
 
@@ -100,22 +111,28 @@ def parse_date(value: str) -> Optional[date]:
     if weekday is not None:
         return current_week_day(weekday)
 
-    dash = '-' in value
-    dot = '.' in value
-    slash = '/' in value
+    dash = "-" in value
+    dot = "." in value
+    slash = "/" in value
     sum = int(dot) + int(slash) + int(dash)
     if sum == 0:
-        raise ValueError('Wrong date format: {}'.format(value))
+        raise ValueError("Wrong date format: {}".format(value))
     elif sum > 1:
-        raise ValueError("Wrong date format: {}. Use only one type of separator: '-', '.' or '/'".format(value))
+        raise ValueError(
+            "Wrong date format: {}. Use only one type of separator: '-', '.' or '/'".format(
+                value
+            )
+        )
 
-    parsed = value.split('-' if dash else '.' if dot else '/')
+    parsed = value.split("-" if dash else "." if dot else "/")
     if not (2 <= len(parsed) <= 3):
-        raise ValueError('Wrong date format: {}.')
+        raise ValueError("Wrong date format: {}.")
 
     result = _parse_date(parsed)
     if not (1900 <= result.year <= 2100):
-        raise ValueError('Wrong date range: {}. Can use only dates with year from 1900 to 2100.')
+        raise ValueError(
+            "Wrong date range: {}. Can use only dates with year from 1900 to 2100."
+        )
     return result
 
 
@@ -123,7 +140,9 @@ def _parse_date(parsed: list) -> date:
     try:
         # format 'dd.mm'
         if len(parsed) == 2:
-            return date(year=date.today().year, month=int(parsed[1]), day=int(parsed[0]))
+            return date(
+                year=date.today().year, month=int(parsed[1]), day=int(parsed[0])
+            )
 
         # format 'YYYY.mm.dd'
         if len(parsed[0]) == 4:
@@ -137,7 +156,7 @@ def _parse_date(parsed: list) -> date:
         if len(parsed[2]) == 2:
             return date(year=int(parsed[2]), month=int(parsed[1]), day=int(parsed[0]))
     except ValueError:
-        raise ValueError('Wrong date format: {}.')
+        raise ValueError("Wrong date format: {}.")
 
 
 def parse_date_interval(dates: str) -> Optional[Tuple[date, date]]:
@@ -145,21 +164,31 @@ def parse_date_interval(dates: str) -> Optional[Tuple[date, date]]:
     if StringUtils.is_blank(dates):
         return None
 
-    if ' - ' not in dates:
+    if " - " not in dates:
         one_day: date = parse_date(dates.strip())
         return one_day, one_day
 
-    start_value, end_value = dates.split(' - ')
+    start_value, end_value = dates.split(" - ")
     start: date = parse_date(start_value.strip())
     end: date = parse_date(end_value.strip())
 
-    if start_value.strip().lower() in weekday_dict and end_value.strip().lower() in weekday_dict and end <= start:
+    if (
+        start_value.strip().lower() in weekday_dict
+        and end_value.strip().lower() in weekday_dict
+        and end <= start
+    ):
         end = end + timedelta(weeks=1)
 
     if end <= start:
-        raise ValueError('Start date has to be before end date: {} - {}'.format(start, end))
+        raise ValueError(
+            "Start date has to be before end date: {} - {}".format(start, end)
+        )
     if (end - start).days > MAX_DAYS_RANGE_ALLOWED:
-        raise ValueError('Maximum allowed range of days is {}. But {} is configured.'.format(MAX_DAYS_RANGE_ALLOWED, (end - start).days))
+        raise ValueError(
+            "Maximum allowed range of days is {}. But {} is configured.".format(
+                MAX_DAYS_RANGE_ALLOWED, (end - start).days
+            )
+        )
 
     return start, end
 
@@ -169,7 +198,7 @@ def date_range(start_date: date, end_date: date):
     Iterate through dates.
     """
     if end_date < start_date:
-        raise ValueError(f'{start_date} is after the {end_date}')
+        raise ValueError(f"{start_date} is after the {end_date}")
     for n in range(int((end_date - start_date).days) + 1):
         yield start_date + timedelta(n)
 
